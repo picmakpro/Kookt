@@ -1,0 +1,215 @@
+# ========================================
+# KOOKT - Configuration Cursor AI
+# Application Mobile de Cuisine avec IA
+# ========================================
+
+# CONTEXTE DU PROJET
+Tu développes KOOKT, une application mobile de cuisine intelligente avec IA.
+L'app permet de générer des recettes à partir d'ingrédients disponibles, 
+planifier des repas, et réduire le gaspillage alimentaire.
+
+# STACK TECHNOLOGIQUE
+- Frontend: Expo (React Native) + TypeScript
+- Navigation: expo-router
+- State Management: Zustand
+- Data Fetching: @tanstack/react-query
+- Validation: zod
+- UI: NativeWind (Tailwind pour React Native)
+- IA: OpenAI GPT-4 pour génération de recettes
+- Computer Vision: pour détection d'ingrédients via photo
+
+# STRUCTURE DU PROJET (au minimum)
+src/
+├── app/                    # Screens avec expo-router
+│   ├── (tabs)/            # Navigation principale
+│   ├── onboarding/        # Processus d'inscription
+│   └── _layout.tsx        # Layout racine
+├── components/            # Composants réutilisables
+│   ├── ui/               # Composants UI de base
+│   └── forms/            # Composants de formulaires
+├── services/             # Services API et IA
+│   ├── ai/               # Services IA (OpenAI, Vision)
+│   └── api/              # Services backend
+├── stores/               # Zustand stores
+├── types/                # Types TypeScript
+├── utils/                # Utilitaires
+├── constants/            # Constantes
+└── hooks/                # Custom hooks
+
+# RÈGLES DE DÉVELOPPEMENT
+
+## 1. CONVENTIONS DE NOMMAGE
+- Fichiers: kebab-case (recipe-generator.tsx)
+- Composants: PascalCase (RecipeCard)
+- Variables/fonctions: camelCase (generateRecipe)
+- Constants: SCREAMING_SNAKE_CASE (API_ENDPOINTS)
+- Types: PascalCase avec suffixe (RecipeType, UserPreferences)
+
+## 2. STRUCTURE DES COMPOSANTS
+- Utilise des functional components avec hooks
+- Exporte default en fin de fichier
+- Groupe les imports: React → Libraries → Local
+- Props avec interfaces TypeScript obligatoires
+- Destructuring des props en première ligne
+
+Exemple:
+```tsx
+interface RecipeCardProps {
+  recipe: RecipeType;
+  onPress: () => void;
+}
+
+export default function RecipeCard({ recipe, onPress }: RecipeCardProps) {
+  return (
+    // Component JSX
+  );
+}
+```
+
+## 3. GESTION D'ÉTAT
+- Zustand pour l'état global
+- useState pour l'état local des composants
+- useQuery pour les données serveur
+- Évite Redux, privilégie Zustand
+
+Store pattern:
+```tsx
+interface RecipeStore {
+  recipes: RecipeType[];
+  addRecipe: (recipe: RecipeType) => void;
+}
+
+export const useRecipeStore = create((set) => ({
+  recipes: [],
+  addRecipe: (recipe) => set((state) => ({
+    recipes: [...state.recipes, recipe]
+  })),
+}));
+```
+
+## 4. SERVICES IA
+- Centralise les appels IA dans services/ai/
+- Utilise des schémas zod pour valider les réponses
+- Gère les erreurs et retry automatique
+- Cache les réponses quand possible
+
+## 5. TYPES TYPESCRIPT
+- Définis tous les types dans types/
+- Utilise des interfaces pour les objets
+- Types union pour les états (loading | success | error)
+- Pas de any, utilise unknown si nécessaire
+
+Types principaux:
+```tsx
+interface RecipeType {
+  id: string;
+  title: string;
+  ingredients: IngredientType[];
+  instructions: string[];
+  cookingTime: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  tags: string[];
+}
+
+interface IngredientType {
+  name: string;
+  quantity: number;
+  unit: string;
+  category?: string;
+}
+```
+
+## 6. PERFORMANCE
+- Utilise React.memo pour les composants qui re-render souvent
+- useCallback pour les fonctions passées en props
+- useMemo pour les calculs coûteux
+- FlatList pour les grandes listes
+- Image avec lazy loading
+
+## 7. NAVIGATION
+- expo-router avec convention de fichiers
+- Types pour les params de navigation
+- Navigation programmatique avec router.push()
+
+## 8. STYLING
+- NativeWind (Tailwind CSS pour React Native)
+- Pas de StyleSheet React Native
+- Responsive design avec breakpoints
+- Dark mode supporté
+
+## 9. GESTION D'ERREURS
+- Try/catch pour tous les appels async
+- Error boundaries pour les erreurs React
+- Messages d'erreur utilisateur-friendly
+- Logging des erreurs pour debug
+
+## 10. TESTS
+- Tests unitaires avec Jest
+- Tests composants avec @testing-library/react-native
+- Tests E2E avec Detox
+- Coverage minimum 80%
+
+# FONCTIONNALITÉS PRINCIPALES
+
+## MVP Phase 1
+1. Onboarding utilisateur (préférences, allergies)
+2. Saisie manuelle d'ingrédients
+3. Génération IA de recettes
+4. Sauvegarde et gestion des recettes
+5. Export vers WhatsApp/Notes
+
+## Phase 2
+1. Photo du frigo + détection d'ingrédients
+2. Contraintes alimentaires avancées
+3. Système de substitutions
+4. Objectifs personnalisés (budget, temps)
+
+## Phase 3
+1. Smart Weekly Planner
+2. Liste de courses intelligente
+3. Gestion du budget alimentaire
+4. Anti-gaspillage gamifié
+
+# PROMPTS POUR L'IA
+
+Quand tu génères du code:
+1. Respecte la structure de dossiers définie
+2. Utilise TypeScript strict
+3. Ajoute des commentaires pour la logique complexe
+4. Inclus la gestion d'erreurs
+5. Optimise pour les performances mobile
+6. Suis les conventions de nommage
+7. Utilise les bonnes pratiques React Native/Expo
+
+# EXEMPLES DE WORKFLOWS
+
+## Génération de recette
+1. Utilisateur saisit ingrédients
+2. Validation avec zod
+3. Appel service IA avec contraintes
+4. Parsing et validation réponse
+5. Sauvegarde en store Zustand
+6. Affichage avec animation
+
+## Photo du frigo
+1. Capture photo avec expo-camera
+2. Upload vers service vision
+3. Détection et extraction ingrédients
+4. Confirmation utilisateur
+5. Génération recettes compatibles
+
+# SÉCURITÉ
+- Variables d'environnement pour API keys
+- Validation côté client ET serveur
+- Pas de données sensibles en storage local
+- HTTPS obligatoire pour toutes les API
+
+# DÉPLOIEMENT
+- Build avec EAS Build
+- Preview builds pour testing
+- Production builds pour stores
+- Monitoring avec Sentry
+
+# Assure-toi que le code généré soit production-ready,
+# bien typé, performant et suit les meilleures pratiques
+# React Native/Expo modernes.
